@@ -1,5 +1,8 @@
 ;;;; .emacs
 
+;;; some to-dos
+;; * appropriately color tab bar
+
 ;;; package setup
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 			 ("org" . "http://orgmode.org/elpa/")
@@ -99,6 +102,9 @@
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
+
+;; utf-8 
+(prefer-coding-system 'utf-8)
 
 ;;; column limit mark
 (require-package 'fill-column-indicator)
