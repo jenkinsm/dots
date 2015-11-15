@@ -7,8 +7,8 @@
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
 			 ("org" . "http://orgmode.org/elpa/")
 			 ("marmalade" . "http://marmalade-repo.org/packages/")
-			 ("melpa-stable" . "http://stable.melpa.org/packages/")
-			 ("melpa" . "http://melpa.org/packages/")))
+			 ; ("melpa" . "http://melpa.org/packages/")
+			 ("melpa-stable" . "http://stable.melpa.org/packages/")))
 (package-initialize)
 
 (defun require-package (package)
@@ -27,6 +27,14 @@
 (menu-bar-mode -1)
 
 ;;; evil mode
+;; leader key (must be set up before evil, otherwise leader won't be enabled
+;; in initial buffers
+(require-package 'evil-leader)
+(require 'evil-leader)
+
+(global-evil-leader-mode)
+(evil-leader/set-leader ",")
+
 (require-package 'evil)
 (require 'evil)
 ;; enable
@@ -54,16 +62,35 @@
 (require-package 'evil-tabs)
 (global-evil-tabs-mode t)
 
+;;; projectile / project management
+(require-package 'projectile)
+(require 'projectile)
+
+;; enable globally (on a trial basis)
+(projectile-global-mode)
+
+;; TODO
+;; at some point, should probably integrate this with helm
+(evil-leader/set-key-for-mode 'projectile-mode
+  "a" 'projectile-ag)
+
+;;; ruby.
+(require-package 'flymake-ruby)
+(require 'flymake-ruby)
+(add-hook 'ruby-mode-hook 'flymake-ruby-load)
+
 ;;; editing cucumber
 (require-package 'feature-mode)
 (require 'feature-mode)
 (add-to-list 'auto-mode-alist '("\.feature$" . feature-mode))
 
+;; req ruby_parser ~>2.0
+;; also, seems broken
+(evil-leader/set-key-for-mode 'feature-mode "d" 'feature-goto-step-definition)
+
 ;;; editing haskell
 (require-package 'haskell-mode)
 (require 'haskell-mode)
-
-(add-hook 'haskell-mode-hook 'haskell-indentation-mode)
 
 (eval-after-load 'haskell-mode ; should probably rebind this w/ leader key
   '(define-key haskell-mode-map [f8] 'haskell-navigate-imports))
@@ -72,7 +99,55 @@
   (setenv "PATH" (concat my-cabal-path path-separator (getenv "PATH")))
   (add-to-list 'exec-path my-cabal-path))
 
-(custom-set-variables '(haskell-tags-on-save t))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(haskell-process-auto-import-loaded-modules t)
+ '(haskell-process-log t)
+ '(haskell-process-suggest-remove-import-lines t)
+ '(haskell-tags-on-save t)
+ '(org-agenda-files (quote ("~/org/ai.org"))))
+
+(evil-leader/set-key-for-mode 'haskell-mode "e" 'ghc-display-errors)
+
+;; interactive mode
+(require 'haskell-interactive-mode)
+(require 'haskell-process)
+
+(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+
+(eval-after-load 'haskell-mode
+  '(progn
+     (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)
+
+     (evil-leader/set-key-for-mode 'haskell-mode "l" 'haskell-process-load-or-reload)
+     (evil-leader/set-key-for-mode 'haskell-mode "z" 'haskell-interactive-switch)))
+
+;; backend functionality
+(require-package 'ghc)
+
+(autoload 'ghc-init "ghc" nil t)
+(autoload 'ghc-debug "ghc" nil t)
+(add-hook 'haskell-mode-hook (lambda () (ghc-init)))
+
+;;; org-mode
+(setq org-todo-keywords
+      '((sequence "TODO" "IN-PROGRESS" "WAITING" "ON HOLD" "DONE")))
+
+(evil-leader/set-key-for-mode 'org-mode "a" 'org-agenda)
+
+;; bindings
+(evil-leader/set-key-for-mode 'org-mode "c" 'org-cycle)
+(evil-leader/set-key-for-mode 'org-mode "t" 'org-todo)
+
+;;; helm
+(require-package 'helm)
+(require 'helm)
+(require 'helm-config)
+
+(evil-leader/set-key "h" 'helm-command-prefix)
 
 ;;; powerline
 ; not working wholly properly at present
@@ -122,8 +197,20 @@
 
 (add-hook 'feature-mode-hook (lambda ()
                                (fci-mode)
-                               (set-fill-column 80)))
+                               (set-fill-column 80)
+                               (setq show-trailing-whitespace t)))
 
 (add-hook 'ruby-mode-hook (lambda ()
                             (fci-mode)
-                            (set-fill-column 80)))
+                            (set-fill-column 80)
+                            (setq show-trailing-whitespace t)))
+
+(add-hook 'haskell-mode-hook (lambda ()
+                               (fci-mode)
+                               (set-fill-column 80)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
