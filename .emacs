@@ -74,6 +74,13 @@
 (evil-leader/set-key-for-mode 'projectile-mode
   "a" 'projectile-ag)
 
+;;; markdown
+(require-package 'markdown-mode)
+(require 'markdown-mode)
+
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+(setq markdown-css-path "markdown.css")
+
 ;;; ruby.
 (require-package 'flymake-ruby)
 (require 'flymake-ruby)
@@ -132,20 +139,28 @@
 (autoload 'ghc-debug "ghc" nil t)
 (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
 
+;;; yaml
+(require-package 'yaml-mode)
+(require 'yaml-mode)
+
+
 ;;; org-mode
 (setq org-todo-keywords
       '((sequence "TODO" "IN-PROGRESS" "WAITING" "ON HOLD" "DONE")))
 
-(evil-leader/set-key-for-mode 'org-mode "a" 'org-agenda)
 
 ;; bindings
+(evil-leader/set-key-for-mode 'org-mode "a" 'org-agenda)
 (evil-leader/set-key-for-mode 'org-mode "c" 'org-cycle)
+(evil-leader/set-key-for-mode 'org-mode "r" 'org-archive-subtree-default-with-confirmation)
 (evil-leader/set-key-for-mode 'org-mode "t" 'org-todo)
 
 ;;; helm
 (require-package 'helm)
 (require 'helm)
 (require 'helm-config)
+
+(helm-mode 1)
 
 (evil-leader/set-key "h" 'helm-command-prefix)
 
